@@ -5,6 +5,7 @@ const morgan = require('morgan')
 const colors = require('colors')
 const fileupload = require('express-fileupload')
 const cookieParser = require('cookie-parser')
+const mongoSanitize = require('express-mongo-sanitize')
 const errorHandler = require('./middlewares/error')
 const connectDB = require('./config/db')
 
@@ -15,6 +16,7 @@ const bootcampsRouter = require('./routes/bootcamps')
 const coursesRouter = require('./routes/courses')
 const authRouter = require('./routes/auth')
 const usersRouter = require('./routes/users')
+const reviewsRouter = require('./routes/reviews')
 
 connectDB()
 
@@ -33,6 +35,9 @@ if (process.env.NODE_ENV === 'development') {
 // File uploading
 app.use(fileupload())
 
+// Sanitize data
+app.use(mongoSanitize())
+
 // Set static folder, so we can access this folder like: http://localhost:5000/uploads/sample.jpg
 app.use(express.static(path.join(__dirname, 'public')))
 
@@ -41,6 +46,7 @@ app.use('/api/v1/bootcamps', bootcampsRouter)
 app.use('/api/v1/courses', coursesRouter)
 app.use('/api/v1/auth', authRouter)
 app.use('/api/v1/users', usersRouter)
+app.use('/api/v1/reviews', reviewsRouter)
 
 // Use errorHandler
 app.use(errorHandler)
