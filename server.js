@@ -6,6 +6,11 @@ const colors = require('colors')
 const fileupload = require('express-fileupload')
 const cookieParser = require('cookie-parser')
 const mongoSanitize = require('express-mongo-sanitize')
+const helmet = require('helmet')
+const xssClean = require('xss-clean')
+const rateLimit = require('express-rate-limit')
+const hpp = require('hpp')
+const cors = require('cors')
 const errorHandler = require('./middlewares/error')
 const connectDB = require('./config/db')
 
@@ -37,6 +42,25 @@ app.use(fileupload())
 
 // Sanitize data
 app.use(mongoSanitize())
+
+// Set security headers
+app.use(helmet())
+
+// Prevent XSS attacks
+app.use(xssClean())
+
+// Rate Limiting
+const limiter = rateLimit({
+  windowMs: 10 * 60 * 1000, // 10 mins
+  max: 100 // Limit to only allow 100 requests per 10 mins
+})
+app.use(limiter)
+
+// Prevent http param pollution
+app.use(hpp())
+
+// Enable CORS
+app.use(cors())
 
 // Set static folder, so we can access this folder like: http://localhost:5000/uploads/sample.jpg
 app.use(express.static(path.join(__dirname, 'public')))
